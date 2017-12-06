@@ -44,7 +44,6 @@ def total_grad(embeddings,labels):
 			else:
 				factor = 1
 			total_grad[i] += calc_grad(j,i,factor = factor,embeddings= embeddings)
-	pdb.set_trace()
 	return total_grad
 
 
