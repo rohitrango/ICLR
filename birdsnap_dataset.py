@@ -1,5 +1,7 @@
 import os
-import io
+import numpy as np
+from skimage import io
+
 from torch.utils.data import Dataset
 
 class BirdsnapDataset(Dataset):
@@ -14,6 +16,9 @@ class BirdsnapDataset(Dataset):
                 on a sample.
         """
         self.transform = transform
+        [0.229, 0.224, 0.225]
+        self.mean = np.array([0.485, 0.456, 0.406])
+        self.variance = np.array([0.229, 0.224, 0.225])
 
         with open(coarsef, 'r') as fin:
             lines = fin.readlines()
@@ -46,6 +51,13 @@ class BirdsnapDataset(Dataset):
 
     def __len__(self):
         return len(self.id_index)
+
+    def transform(sample):
+        sample['image'] = sample['image']/255.0
+
+        sample['image'] = (sample['image']-self.mean)/self.variance
+
+        return sample
 
     def __getitem__(self, idx):
         
