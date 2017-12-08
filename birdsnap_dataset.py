@@ -1,5 +1,7 @@
 import os
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 from skimage import io
 
 from torch.utils.data import Dataset
@@ -33,19 +35,19 @@ class BirdsnapDataset(Dataset):
         for coarse_id, coarse_label in enumerate(coarse_labels):
             coarse_index[coarse_label] = coarse_id
 
-        for fine_index, line in enumerate(lines):
+        for fine_id, line in enumerate(lines):
             tokens = line.split(',')
-            fine_index[tokens[1]] = (fine_index, coarse_index[tokens[2]])
+            fine_index[tokens[1]] = (fine_id, coarse_index[tokens[2]])
 
         self.id_index = []
 
         species = os.listdir(root_dir)
 
         for specie in species:
-            specie_path = os.join(root_dir, specie)
+            specie_path = os.path.join(root_dir, specie)
             image_list = os.listdir(specie_path)
 
-            image_path_list = [(os.join(specie_path, image_item), fine_index[specie]) for image_item in image_list]
+            image_path_list = [(os.path.join(specie_path, image_item), fine_index[specie]) for image_item in image_list]
 
             self.id_index.extend(image_path_list)
 
