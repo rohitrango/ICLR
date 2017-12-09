@@ -36,12 +36,13 @@ def total_loss(embeddings,labels):
 def calc_grad(p,q,factor,embeddings):
 	val_1 = embeddings[p]
 	val_2 = embeddings[q] + EPSILON
-	value =  factor * np.divide(val_1,val_2)
+	value =  factor * torch.div(val_1,val_2)
 	loss = kldiv(embeddings[p],embeddings[q])
 	value = value.numpy()
 	if factor == 1:
-		if loss == 0.0:
+		if loss > MARGIN:
 			value = np.zeros((4096))
+
 	return value	
 
 

@@ -64,11 +64,10 @@ class BirdsnapDataset(Dataset):
     def __getitem__(self, idx):
         
         image = io.imread(self.id_index[idx][0])
-        
+      
         sample = {'image': image, 'fine_label': self.id_index[idx][1][0], 'coarse_label': self.id_index[idx][1][1]}
 
         if self.transform:
             sample = self.transform_im(sample)
-
-        sample['image'] = np.transpose(sample['image'],axes=(2,0,1)).astype(np.float32)
+	sample['image'] = np.transpose(sample['image'],axes=(2,0,1)).astype(np.float32)
         return sample
