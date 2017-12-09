@@ -36,7 +36,7 @@ for i in range(EPOCHS):
 	for index,batch in enumerate(train_iter):
 		output = model.forward(Variable(temp["image"]))
 		total_loss_val = total_loss(output.data,temp["fine_label"])
-		total_grad_val = torch.from_numpy((-1)*total_grad(output.data,temp["fine_label"])).float()
+		total_grad_val = torch.from_numpy(total_grad(output.data,temp["fine_label"])).float()
 		optimizer.zero_grad()
 		output.backward(gradient=total_grad_val)
 		pdb.set_trace()
