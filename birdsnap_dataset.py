@@ -54,7 +54,7 @@ class BirdsnapDataset(Dataset):
     def __len__(self):
         return len(self.id_index)
 
-    def transform(sample):
+    def transform_im(self,sample):
         sample['image'] = sample['image']/255.0
 
         sample['image'] = (sample['image']-self.mean)/self.variance
@@ -68,6 +68,7 @@ class BirdsnapDataset(Dataset):
         sample = {'image': image, 'fine_label': self.id_index[idx][1][0], 'coarse_label': self.id_index[idx][1][1]}
 
         if self.transform:
-            sample = self.transform(sample)
+            sample = self.transform_im(sample)
 
+        sample['image'] = np.transpose(sample['image'],axes=(2,0,1)).astype(np.float32)
         return sample

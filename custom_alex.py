@@ -99,3 +99,4 @@ class CustomAlex(nn.Module):
             fc7 = self.fc7(fc6 + skip_fc6)
             fc8 = self.fc8(fc7)
             return fc_skip, fc7, fc8
+        return temp

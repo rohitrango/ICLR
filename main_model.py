@@ -4,39 +4,43 @@ from torch.autograd import Variable
 from custom_alex import *
 import torchvision.models as models 
 from loss_fn import *
-
+from torch.utils.data import *
+import pdb
 
 # Batch size and input dimensions
 
 BATCH_SIZE = 20
-IMAGE_SIZE = 224
-IMAGE_CHAN = 3
 EPOCHS = 1
 
+from birdsnap_dataset import *
 
-# Input and Labels Batch Initialisation
-
-input_batch = Variable(torch.randn(BATCH_SIZE,IMAGE_CHAN,IMAGE_SIZE,IMAGE_SIZE),requires_grad = False)
-label_coarse = Variable(torch.randn(BATCH_SIZE,1),requires_grad = False)
-label_fine = Variable(torch.randn(BATCH_SIZE,1),requires_grad = False)
+train_dataset = BirdsnapDataset(root_dir='train',coarsef='birdsnap34.txt',transform=True)
+test_dataset = BirdsnapDataset(root_dir='test',coarsef='birdsnap34.txt',transform=True)
 
 
-model = CustomAlex(model_id = "A")
+train_iter = DataLoader(train_dataset,batch_size=BATCH_SIZE,shuffle=True)
+test_iter = DataLoader(test_dataset,batch_size=BATCH_SIZE,shuffle=True)
+
+model = nn.Sequential(
+		CustomAlex(model_id = "A"),
+		nn.Softmax(),
+	)
 
 learning_rate = 1e-3
 
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-
+# Training Set
 for i in range(EPOCHS):
-	# Update the input batch
-
-	output = model.forward(input_batch)
-	total_loss = total_loss(output.data,label_fine.data)
-	total_grad = torch.from_numpy(total_grad(output.data,label_fine.data))
-	optimizer.zero_grad()
-	output.backward(gradient = total_grad)
-	optimizer.step()
+	for index,batch in enumerate(train_iter):
+		output = model.forward(Variable(batch["image"]))
+		total_loss_val = total_loss(output.data,batch["fine_label"])
+		total_grad_val = torch.from_numpy(total_grad(output.data,batch["fine_label"])).float()
+		optimizer.zero_grad()
+		output.backward(gradient=total_grad_val)
+		optimizer.step()
+		print("Loss at Epoch %d Batch %d : %f" % (i+1,index+1,total_loss_val))
+	
 
 
 
