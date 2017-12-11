@@ -33,7 +33,7 @@ class CustomAlex(nn.Module):
                 nn.Dropout(),
                 nn.Linear(4096, 4096),
                 nn.ReLU(inplace=True),
-                nn.Linear(4096,4096),
+                nn.Linear(4096, 1024),
             )
 
         if model_id != "A":

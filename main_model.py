@@ -6,10 +6,10 @@ import torchvision.models as models
 from loss_fn import *
 from torch.utils.data import *
 import pdb
-
+import json
 # Batch size and input dimensions
 
-BATCH_SIZE = 16
+BATCH_SIZE = 32
 EPOCHS = 50
 
 from birdsnap_dataset import *
@@ -24,25 +24,31 @@ test_iter = DataLoader(test_dataset,batch_size=BATCH_SIZE,shuffle=True)
 model = nn.Sequential(
 		CustomAlex(model_id = "A"),
 		nn.Softmax(),
-	)
+	).cuda()
 
 
-optimizer =  torch.optim.SGD(model.parameters(), lr = 0.01, momentum=0.9)
-
-
+optimizer =  torch.optim.SGD(model.parameters(), lr=0.01, dampening=0.001, momentum=0.9)
 
 # Training Set
+losses = []
+	
 for i in range(EPOCHS):
-	for index,batch in enumerate(train_iter):
-		output = model.forward(Variable(temp["image"]))
-		total_loss_val = total_loss(output.data,temp["fine_label"])
-		total_grad_val = torch.from_numpy(total_grad(output.data,temp["fine_label"])).float()
+	losses.append([])
+	for index, batch in enumerate(train_iter):
+		print("Batch %d"%index)
+		output = model.forward(Variable(batch["image"]).cuda())
+		total_loss_val = total_loss(output, batch["fine_label"])
+		total_grad_val = (total_grad(output, batch["fine_label"]))
 		optimizer.zero_grad()
+		# total_loss_val.backward()
 		output.backward(gradient=total_grad_val)
-		pdb.set_trace()
+		# pdb.set_trace()
 		optimizer.step()
-		print("Loss at Epoch %d Batch %d : %f" % (i+1,index,total_loss_val))
-			
+		print("Loss at Epoch %d Batch %d : %f , %f" % (i+1, index, total_loss_val.data[0], torch.sum(total_grad_val)))
+		losses[-1].append(total_loss_val.data[0])
+
+with open('losses.txt', 'w+') as f:
+	f.write(json.dumps(losses))
 
 
 
